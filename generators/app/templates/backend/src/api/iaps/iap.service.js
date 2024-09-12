@@ -10,6 +10,7 @@ const IOS_NOTIFICATION_FAILED = [
   "GRACE_PERIOD_EXPIRED",
   "REFUND"
 ];
+const IOS_REFUND = "REFUND";
 
 const ANDROID_NOTIFICATION_SUCCESS = {
   1: "SUBSCRIPTION_RECOVERED",
@@ -31,6 +32,7 @@ const ANDROID_NOTIFICATION_OTHER = {
   11: "SUBSCRIPTION_PAUSE_SCHEDULE_CHANGED",
   20: "SUBSCRIPTION_PENDING_PURCHASE_CANCELED"
 };
+const ANDROID_REFUND = 12;
 
 class IapService extends Service {
   constructor() {
@@ -238,7 +240,9 @@ class IapService extends Service {
         iap.transactionIds.push(transactionId);
         Object.assign(iap, decodeTransaction);
       }
-      iap.expiresDate = new Date();
+      if (notificationType === IOS_REFUND) {
+        iap.expiresDate = new Date();
+      }
       iap.reason = notificationType;
 
       await iap.save();
@@ -418,7 +422,9 @@ class IapService extends Service {
       if (iap.transactionIds.includes(orderId) === false) {
         iap.transactionIds.push(orderId);
       }
-      iap.expiresDate = new Date();
+      if (notificationType === ANDROID_REFUND) {
+        iap.expiresDate = new Date();
+      }
       iap.reason = ANDROID_NOTIFICATION_FAILED[notificationType];
 
       await iap.save();
